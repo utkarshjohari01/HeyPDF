@@ -1,0 +1,19 @@
+.env
+venv/
+.vscode/
+
+
+# Cache and build
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+dist/
+build/
+
+# Logs
+*.log
+
+# OS and IDE
+
+Thumbs.db

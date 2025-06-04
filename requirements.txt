@@ -1,0 +1,18 @@
+streamlit
+google-generativeai
+python-dotenv
+langchain
+#changing library from PyPDF2 to pymupdf(fitz) for better performance
+pymupdf
+chromadb
+faiss-cpu
+langchain_google_genai
+
+pdf2image
+pytesseract
+pillow
+##pip install pytesseract pdf2image pillow
+langchain
+langchain-core
+langchain-google-genai
+langchain-community
