@@ -7,9 +7,13 @@ Upload your PDFs and ask questions. Get answered with page-level citations.
 
 ## 🖼️ Screenshots
 
-| 🌙 Dark Mode | ☀️ Light Mode |
-|:-----------:|:------------:|
-| ![HeyPDF Dark Mode](screenshots/dark_mode.png) | ![HeyPDF Light Mode](screenshots/light_mode.png) |
+**☀️ Light Mode**  
+![HeyPDF Light Mode](screenshots/light_mode.png)
+
+<br>
+
+**🌙 Dark Mode**  
+![HeyPDF Dark Mode](screenshots/dark_mode.png)
 
 ---
 
