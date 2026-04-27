@@ -1,19 +1,42 @@
-.env
-venv/
-.vscode/
+# HeyPDF 2.0 — .gitignore
 
-
-# Cache and build
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
 *.pyo
-*.pyd
+*.egg-info/
 dist/
 build/
+*.egg
+.eggs/
 
-# Logs
-*.log
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
 
-# OS and IDE
+# Environment variables (NEVER commit your real keys)
+.env
+.env.*
+!.env.example
 
+# HeyPDF storage (FAISS indexes and uploaded PDF data)
+backend/storage/
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
 Thumbs.db
+
+# Frontend build artifacts
+frontend/node_modules/
+frontend/dist/
+
+# Python test cache
+.pytest_cache/
+.coverage
+htmlcov/

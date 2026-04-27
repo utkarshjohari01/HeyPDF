@@ -1,29 +1,32 @@
-# Use a slim Python image
+# HeyPDF 2.0 — Dockerfile
+# Builds the FastAPI backend. Run alongside the React frontend.
+#
+# Build:   docker build -t heypdf-backend .
+# Run:     docker run -p 8000:8000 --env-file .env heypdf-backend
+
 FROM python:3.11-slim
 
-# Set environment variables
+# Prevent .pyc files and enable stdout/stderr flushing
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Set working directory
 WORKDIR /app
 
-# Install system dependencies for OCR and PDF conversion
+# Install OS-level dependencies
 RUN apt-get update && apt-get install -y \
-    tesseract-ocr \
-    poppler-utils \
-    libgl1-mesa-glx \
-    && apt-get clean
+    build-essential \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install them
-COPY requirements.txt .
+# Install Python dependencies first (layer cache friendly)
+COPY backend/requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Copy the app files
-COPY . .
+# Copy only the backend source
+COPY backend/ .
 
-# Expose port for Streamlit
-EXPOSE 8501
+# sentence-transformers model will be downloaded on first run
+# and cached at /root/.cache/huggingface
 
-# Run Streamlit app
-CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+EXPOSE 8000
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
