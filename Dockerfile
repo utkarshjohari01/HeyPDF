@@ -21,11 +21,12 @@ RUN apt-get update && apt-get install -y \
 COPY backend/requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
+# Pre-download the sentence-transformers model to bake it into the Docker cache.
+# This prevents downloading a 90MB file every time Render wakes up from sleep.
+RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
+
 # Copy only the backend source
 COPY backend/ .
-
-# sentence-transformers model will be downloaded on first run
-# and cached at /root/.cache/huggingface
 
 EXPOSE 8000
 
