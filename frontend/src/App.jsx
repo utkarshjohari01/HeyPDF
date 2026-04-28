@@ -23,7 +23,7 @@ import PDFSidebar from './components/PDFSidebar';
 import ChatWindow from './components/ChatWindow';
 import AboutModal from './components/AboutModal';
 import Toast from './components/Toast';
-import { uploadPDF, deletePDF, sendChat, exportChat } from './api';
+import { uploadPDF, deletePDF, sendChat, exportChat, pingBackend } from './api';
 
 // ── Unique ID helper ───────────────────────────────────────────────────────────
 let _idCounter = 0;
@@ -84,6 +84,11 @@ export default function App() {
   const handleFilesSelected = useCallback(async (files) => {
     if (uploadLoading) return;
     setUploadLoading(true);
+
+    // Step 1: Silently ping the backend to wake it from Render's free-tier sleep.
+    // This prevents the actual upload from timing out during cold start.
+    addToast('info', '⏳ Waking up server, please wait a moment...');
+    await pingBackend();
 
     let uploadedCount = 0;
     let lastSuggestedQuestions = [];

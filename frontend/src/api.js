@@ -11,8 +11,29 @@ const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 const api = axios.create({
   baseURL: BASE_URL,
-  timeout: 120000, // 2 minutes — AI calls can be slow on first load
+  timeout: 120000, // 2 minutes for chat calls
 });
+
+// Separate instance for uploads — 5 minute timeout to survive cold starts + large PDFs
+const uploadApi = axios.create({
+  baseURL: BASE_URL,
+  timeout: 300000, // 5 minutes
+});
+
+/**
+ * Ping the backend to wake it up before uploading.
+ * Render free tier sleeps after 15 min inactivity. This silent ping
+ * starts the wake-up process so the upload doesn't time out.
+ * @returns {Promise<boolean>} true if server is awake
+ */
+export async function pingBackend() {
+  try {
+    await axios.get(`${BASE_URL}/`, { timeout: 60000 });
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 // ── PDF endpoints ──────────────────────────────────────────────────────────────
 
@@ -26,7 +47,7 @@ export async function uploadPDF(file, onProgress) {
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await api.post('/upload', formData, {
+  const response = await uploadApi.post('/upload', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
     onUploadProgress: (progressEvent) => {
       if (onProgress && progressEvent.total) {
