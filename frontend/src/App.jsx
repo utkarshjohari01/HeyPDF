@@ -18,11 +18,13 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import TopBar from './components/TopBar';
 import PDFSidebar from './components/PDFSidebar';
 import ChatWindow from './components/ChatWindow';
 import AboutModal from './components/AboutModal';
 import Toast from './components/Toast';
+import LandingPage from './components/LandingPage';
 import { uploadPDF, deletePDF, sendChat, exportChat, pingBackend } from './api';
 
 // ── Unique ID helper ───────────────────────────────────────────────────────────
@@ -35,6 +37,14 @@ function createToast(type, message) {
 }
 
 export default function App() {
+  // ── Entry Flow ─────────────────────────────────────────────────────────────
+  // Always show the landing page on fresh load
+  const [showLanding, setShowLanding] = useState(true);
+
+  const handleLandingComplete = useCallback(() => {
+    setShowLanding(false);
+  }, []);
+
   // ── Theme ──────────────────────────────────────────────────────────────────
   const [darkMode, setDarkMode] = useState(() => {
     const stored = localStorage.getItem('heypdf_theme');
@@ -246,55 +256,65 @@ export default function App() {
   const hasPdfs = pdfs.length > 0;
 
   return (
-    <div className="h-screen flex flex-col bg-surface-50 dark:bg-navy-900 overflow-hidden">
-
-      {/* Fixed top bar */}
-      <TopBar
-        darkMode={darkMode}
-        onToggleTheme={toggleTheme}
-        onFilesSelected={handleFilesSelected}
-        onClearChat={handleClearChat}
-        onExportChat={handleExportChat}
-        onOpenAbout={() => setAboutOpen(true)}
-        chatHistoryLength={messages.length}
-        uploadLoading={uploadLoading}
-      />
-
-      {/* Content below top bar */}
-      <div className="flex flex-1 overflow-hidden pt-16">
-
-        {/* Sidebar — only visible when PDFs are uploaded */}
-        {hasPdfs && (
-          <PDFSidebar
-            pdfs={pdfs}
-            activePdfIds={activePdfIds}
-            onToggle={handleTogglePdf}
-            onDelete={handleDeletePdf}
+    <AnimatePresence mode="wait">
+      {showLanding ? (
+        <LandingPage key="landing" onComplete={handleLandingComplete} />
+      ) : (
+        <motion.div
+          key="app"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6 }}
+          className="h-screen flex flex-col bg-surface-50 dark:bg-navy-900 overflow-hidden"
+        >
+          {/* Fixed top bar */}
+          <TopBar
+            darkMode={darkMode}
+            onToggleTheme={toggleTheme}
             onFilesSelected={handleFilesSelected}
+            onClearChat={handleClearChat}
+            onExportChat={handleExportChat}
+            onOpenAbout={() => setAboutOpen(true)}
+            chatHistoryLength={messages.length}
             uploadLoading={uploadLoading}
           />
-        )}
 
-        {/* Main chat area */}
-        <main className="flex-1 flex flex-col overflow-hidden">
-          <ChatWindow
-            messages={messages}
-            onSendMessage={handleSendMessage}
-            isLoading={isLoading}
-            activePdfCount={activePdfIds.size}
-            hasPdfs={hasPdfs}
-            suggestedQuestions={suggestedQuestions}
-            onFilesSelected={handleFilesSelected}
-            uploadLoading={uploadLoading}
-          />
-        </main>
-      </div>
+          {/* Content below top bar */}
+          <div className="flex flex-1 overflow-hidden pt-16">
+            {/* Sidebar — only visible when PDFs are uploaded */}
+            {hasPdfs && (
+              <PDFSidebar
+                pdfs={pdfs}
+                activePdfIds={activePdfIds}
+                onToggle={handleTogglePdf}
+                onDelete={handleDeletePdf}
+                onFilesSelected={handleFilesSelected}
+                uploadLoading={uploadLoading}
+              />
+            )}
 
-      {/* About modal */}
-      <AboutModal isOpen={aboutOpen} onClose={() => setAboutOpen(false)} />
+            {/* Main chat area */}
+            <main className="flex-1 flex flex-col overflow-hidden">
+              <ChatWindow
+                messages={messages}
+                onSendMessage={handleSendMessage}
+                isLoading={isLoading}
+                activePdfCount={activePdfIds.size}
+                hasPdfs={hasPdfs}
+                suggestedQuestions={suggestedQuestions}
+                onFilesSelected={handleFilesSelected}
+                uploadLoading={uploadLoading}
+              />
+            </main>
+          </div>
 
-      {/* Toast notifications */}
-      <Toast toasts={toasts} onRemove={removeToast} />
-    </div>
+          {/* About modal */}
+          <AboutModal isOpen={aboutOpen} onClose={() => setAboutOpen(false)} />
+
+          {/* Toast notifications */}
+          <Toast toasts={toasts} onRemove={removeToast} />
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

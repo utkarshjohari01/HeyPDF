@@ -140,6 +140,16 @@ def root():
     return {"status": "ok", "message": "HeyPDF 2.0 API is running", "version": "2.0.0"}
 
 
+@app.get("/health")
+def health():
+    """Lightweight pre-warming endpoint for the landing page server status indicator."""
+    from datetime import timezone
+    return {
+        "status": "ok",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+
+
 @app.post("/upload", response_model=PDFInfo)
 async def upload_pdf(file: UploadFile = File(...)):
     """
